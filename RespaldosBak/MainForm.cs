@@ -302,6 +302,7 @@ namespace RespaldosBak
             AutoScaleDimensions = new SizeF(96f, 96f);
             AutoScaleMode = AutoScaleMode.Dpi;
             Text = Titulo + " " + Procesador.VersionApp;
+            Icon = Icon.ExtractAssociatedIcon(Application.ExecutablePath); // El mismo del .exe, sin duplicarlo.
             StartPosition = FormStartPosition.CenterScreen;
             ClientSize = new Size(820, 600);
             MinimumSize = new Size(680, 480);
