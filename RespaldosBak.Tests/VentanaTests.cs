@@ -299,6 +299,10 @@ namespace RespaldosBak.Tests
             {
                 try
                 {
+                    // Sin Application.Run, DoEvents desinstala el contexto de la ventana y los await seguirían en otro hilo.
+                    WindowsFormsSynchronizationContext.AutoInstall = false;
+                    SynchronizationContext.SetSynchronizationContext(new WindowsFormsSynchronizationContext());
+                    Control.CheckForIllegalCrossThreadCalls = true;
                     using (var f = new MainForm(_app))
                     {
                         f.Mensaje = (texto, botones, icono) =>
