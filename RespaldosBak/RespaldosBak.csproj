@@ -1,0 +1,24 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <OutputType>WinExe</OutputType>
+    <TargetFramework>net48</TargetFramework>
+    <LangVersion>latest</LangVersion>
+    <AssemblyName>RespaldosBak</AssemblyName>
+    <RootNamespace>RespaldosBak</RootNamespace>
+    <Version>0.1.0</Version>
+    <IncludeSourceRevisionInInformationalVersion>false</IncludeSourceRevisionInInformationalVersion>
+    <Company>JRC Tecnología</Company>
+    <Product>Respaldos BAK CONTPAQi</Product>
+    <ApplicationManifest>app.manifest</ApplicationManifest>
+    <!-- Un solo .exe: sin .exe.config (net48 no lo necesita). -->
+    <GenerateSupportedRuntime>false</GenerateSupportedRuntime>
+    <!-- Un solo .exe: sin .pdb aparte en Release. -->
+    <DebugType Condition="'$(Configuration)' == 'Release'">none</DebugType>
+    <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="System.IO.Compression" />
+    <Reference Include="System.Windows.Forms" />
+    <PackageReference Include="Microsoft.NETFramework.ReferenceAssemblies" Version="1.0.3" PrivateAssets="all" />
+  </ItemGroup>
+</Project>

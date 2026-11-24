@@ -1,0 +1,26 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <!-- net48 es el entorno real y solo corre en Windows; net10.0 permite probar el núcleo en macOS y Linux. -->
+    <TargetFrameworks>net10.0</TargetFrameworks>
+    <TargetFrameworks Condition="$([MSBuild]::IsOSPlatform('Windows'))">net48;net10.0</TargetFrameworks>
+    <LangVersion>latest</LangVersion>
+    <!-- Las llamadas solo de Unix ya se protegen con EsWindows. -->
+    <NoWarn>$(NoWarn);CA1416</NoWarn>
+    <IsPackable>false</IsPackable>
+    <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
+  </PropertyGroup>
+  <ItemGroup>
+    <!-- Se compila el mismo código en vez de referenciar una DLL, para que la herramienta siga siendo un solo .exe. -->
+    <Compile Include="..\RespaldosBak\Core\**\*.cs" LinkBase="Core" />
+    <Compile Include="..\RespaldosBak\Config\**\*.cs" LinkBase="Config" />
+  </ItemGroup>
+  <ItemGroup>
+    <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.14.1" />
+    <PackageReference Include="xunit" Version="2.9.3" />
+    <PackageReference Include="xunit.runner.visualstudio" Version="3.1.4" PrivateAssets="all" />
+  </ItemGroup>
+  <ItemGroup Condition="'$(TargetFramework)' == 'net48'">
+    <PackageReference Include="Microsoft.NETFramework.ReferenceAssemblies" Version="1.0.3" PrivateAssets="all" />
+    <Reference Include="System.IO.Compression" />
+  </ItemGroup>
+</Project>
