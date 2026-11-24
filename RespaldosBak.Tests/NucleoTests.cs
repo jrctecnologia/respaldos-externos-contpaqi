@@ -414,6 +414,19 @@ namespace RespaldosBak.Tests
         }
 
         [Fact]
+        public void El_progreso_llega_al_total_aunque_se_omita_o_falle()
+        {
+            string existente = e.EnDestino(Esperados2021[0]);
+            Directory.CreateDirectory(Path.GetDirectoryName(existente));
+            File.WriteAllText(existente, "previo");
+            File.WriteAllText(e.EnDestino("Empresas/ctEMP2"), ""); // Ocupa el lugar de la carpeta: ctEMP2 falla.
+            Progreso ultimo = null;
+            Resultado r = e.Correr(e.Opciones(), p => ultimo = p);
+            Assert.Equal((1, 1, 1), (r.Omitidos, r.Errores, r.Procesados));
+            Assert.Equal(ultimo.BytesTotales, ultimo.BytesProcesados);
+        }
+
+        [Fact]
         public void Index_se_propone_junto_al_origen()
         {
             Assert.Equal(e.Index, Rutas.IndexPropuesto(e.Origen + Path.DirectorySeparatorChar));

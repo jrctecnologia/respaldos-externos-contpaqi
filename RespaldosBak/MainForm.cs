@@ -29,8 +29,12 @@ namespace RespaldosBak
         internal readonly Button Cancelar = Boton("Cancelar");
         internal readonly Button AbrirLog = Boton("Abrir log");
         internal readonly Button AbrirDestino = Boton("Abrir destino");
-        internal readonly ProgressBar Barra = new ProgressBar { Dock = DockStyle.Fill };
-        internal readonly Label Estado = new Label { AutoSize = true, Text = "Listo." };
+        internal readonly ProgressBar Barra = new ProgressBar { Dock = DockStyle.Fill, Maximum = 1000 };
+        internal readonly Label Estado = new Label
+        {
+            Dock = DockStyle.Fill, Height = 20, Text = "Listo.",
+            AutoEllipsis = true, UseMnemonic = false // Las rutas pueden ser largas o llevar "&".
+        };
         internal readonly TextBox Registro = new TextBox
         {
             Multiline = true, ReadOnly = true, WordWrap = false, ScrollBars = ScrollBars.Both, Dock = DockStyle.Fill,
@@ -43,6 +47,7 @@ namespace RespaldosBak
         private string _rutaLog;
         private string _ultimoOrigen = "";
         private bool _ocupado;
+        private CancellationTokenSource _cancelacion;
 
         /// <summary>Reemplazable en las pruebas para no abrir ventanas.</summary>
         internal Func<string, MessageBoxButtons, MessageBoxIcon, DialogResult> Mensaje { get; set; }
@@ -59,6 +64,7 @@ namespace RespaldosBak
             Origen.Leave += (s, e) => OrigenElegido();
             Index.TextChanged += (s, e) => RevisarIndex();
             Iniciar.Click += async (s, e) => await IniciarAsync();
+            Cancelar.Click += (s, e) => PedirCancelacion();
             AbrirLog.Click += (s, e) => Abrir(_rutaLog);
             AbrirDestino.Click += (s, e) => Abrir(Destino.Text.Trim());
             FormClosing += AlCerrar;
@@ -102,6 +108,8 @@ namespace RespaldosBak
             }
 
             Registro.Clear();
+            Barra.Value = 0;
+            _cancelacion = new CancellationTokenSource();
             Ocupar(true);
             try
             {
@@ -109,7 +117,21 @@ namespace RespaldosBak
                 {
                     _rutaLog = bitacora.RutaArchivo;
                     bitacora.Linea += AgregarLinea;
-                    await ProcesarAsync(opciones, bitacora);
+                    try
+                    {
+                        await ProcesarAsync(opciones, bitacora, _cancelacion.Token);
+                    }
+                    catch (OperationCanceledException)
+                    {
+                        // Cancelado durante la búsqueda: todavía no había nada en curso.
+                        bitacora.Escribir(Tipo.Aviso, "Búsqueda cancelada por el usuario");
+                        Estado.Text = "Cancelado.";
+                    }
+                    catch (Exception ex)
+                    {
+                        bitacora.Escribir(Tipo.Error, ex.Message);
+                        throw;
+                    }
                 }
             }
             catch (Exception ex)
@@ -119,14 +141,16 @@ namespace RespaldosBak
             finally
             {
                 Ocupar(false);
+                _cancelacion.Dispose();
+                _cancelacion = null;
             }
         }
 
-        private async Task ProcesarAsync(Opciones opciones, Bitacora bitacora)
+        private async Task ProcesarAsync(Opciones opciones, Bitacora bitacora, CancellationToken token)
         {
             var procesador = new Procesador(opciones, bitacora);
             Estado.Text = "Buscando respaldos…";
-            PlanTrabajo plan = await Task.Run(() => procesador.Preparar(CancellationToken.None));
+            PlanTrabajo plan = await Task.Run(() => procesador.Preparar(token), token);
             Estado.Text = plan.Archivos.Count + " archivos .bak, " + Resultado.FormatoTamano(plan.TotalBytes);
 
             if (plan.Archivos.Count == 0)
@@ -142,18 +166,29 @@ namespace RespaldosBak
                 return;
             }
 
-            if (!opciones.Simular)
-            {
-                // La copia real llega en la etapa 3, junto con el progreso y la cancelación.
-                bitacora.Escribir(Tipo.Info, "Copiar y mover todavía no están disponibles en esta versión; no se modificó ningún archivo");
-                Mensaje("Copiar y mover todavía no están disponibles en esta versión. Por ahora usa Simular."
-                        + Environment.NewLine + "No se modificó ningún archivo.", MessageBoxButtons.OK, MessageBoxIcon.Information);
-                return;
-            }
+            // Progress<T> se crea aquí, en el hilo de la ventana, para que avise en él.
+            var progreso = new Progress<Progreso>(MostrarProgreso);
+            Resultado resultado = await Task.Run(() => procesador.Ejecutar(plan, progreso, token));
 
-            Resultado resultado = await Task.Run(() => procesador.Ejecutar(plan, null, CancellationToken.None));
+            Estado.Text = resultado.Cancelado ? "Cancelado." : "Terminado.";
             Mensaje(string.Join(Environment.NewLine, resultado.Resumen()), MessageBoxButtons.OK,
-                    resultado.Errores > 0 ? MessageBoxIcon.Warning : MessageBoxIcon.Information);
+                    resultado.Errores > 0 || resultado.Cancelado ? MessageBoxIcon.Warning : MessageBoxIcon.Information);
+        }
+
+        private void MostrarProgreso(Progreso p)
+        {
+            if (p.BytesTotales > 0) Barra.Value = (int)(p.BytesProcesados * Barra.Maximum / p.BytesTotales);
+            if (_cancelacion == null || _cancelacion.IsCancellationRequested) return; // Se queda en "Cancelando…".
+            Estado.Text = p.Numero + " de " + p.Total + "   " + Resultado.FormatoTamano(p.BytesProcesados) + " de "
+                          + Resultado.FormatoTamano(p.BytesTotales) + "   " + p.Archivo;
+        }
+
+        private void PedirCancelacion()
+        {
+            if (_cancelacion == null) return;
+            _cancelacion.Cancel();
+            Cancelar.Enabled = false;
+            Estado.Text = "Cancelando…";
         }
 
         /// <summary>Advertencias de la unidad destino y confirmación de Mover.</summary>
@@ -208,10 +243,9 @@ namespace RespaldosBak
             _ocupado = ocupado;
             _entradas.Enabled = !ocupado;
             Iniciar.Enabled = !ocupado;
-            Cancelar.Enabled = false; // Se habilita en la etapa 3.
+            Cancelar.Enabled = ocupado;
             AbrirLog.Enabled = !ocupado && _rutaLog != null;
             AbrirDestino.Enabled = !ocupado;
-            if (!ocupado && Estado.Text.StartsWith("Buscando")) Estado.Text = "Listo.";
         }
 
         private void AgregarLinea(string linea)
@@ -222,7 +256,18 @@ namespace RespaldosBak
 
         private void AlCerrar(object sender, FormClosingEventArgs e)
         {
-            if (_ocupado) e.Cancel = true;
+            if (!_ocupado) return;
+
+            // Al apagar Windows no se estorba: los originales solo se borran después de verificar su copia.
+            if (e.CloseReason == CloseReason.WindowsShutDown)
+            {
+                PedirCancelacion();
+                return;
+            }
+
+            e.Cancel = true;
+            if (Mensaje("Hay un proceso en curso. ¿Cancelarlo?", MessageBoxButtons.YesNo, MessageBoxIcon.Warning) == DialogResult.Yes)
+                PedirCancelacion();
         }
 
         private void Abrir(string ruta)

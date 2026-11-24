@@ -75,6 +75,7 @@ namespace RespaldosBak.Core
         {
             var r = new Resultado { Encontrados = plan.Archivos.Count, Simulado = _op.Simular };
             var zipsAtendidos = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+            var zipsContados = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
             string destinoBak = Path.Combine(Rutas.Normalizar(_op.Destino), Rutas.NombreCarpeta(_op.Origen));
             string destinoIndex = Path.Combine(Rutas.Normalizar(_op.Destino), Rutas.CarpetaIndex, Rutas.CarpetaRespaldos);
             long acumulado = 0;
@@ -92,7 +93,7 @@ namespace RespaldosBak.Core
                         Archivo = nombre,
                         Numero = numero,
                         Total = plan.Archivos.Count,
-                        BytesProcesados = bytes,
+                        BytesProcesados = Math.Min(bytes, plan.TotalBytes),
                         BytesTotales = plan.TotalBytes
                     });
 
@@ -112,7 +113,11 @@ namespace RespaldosBak.Core
 
                     // El .zip de Index sigue al .bak: si este se omitió o falló, no se toca.
                     if (estado == Estado.Procesado && plan.IndexDisponible)
-                        acumulado += ProcesarIndex(bak, destinoIndex, zipsAtendidos, r, acumulado, informar, token);
+                        ProcesarIndex(bak, destinoIndex, zipsAtendidos, r, acumulado, informar, token);
+
+                    // Cuenta aunque se haya omitido o fallado, para que el progreso llegue al total.
+                    if (bak.ZipIndex != null && zipsContados.Add(bak.ZipIndex)) acumulado += bak.TamanoZipIndex;
+                    informar(bak.RutaRelativa, acumulado);
                 }
             }
             catch (OperationCanceledException)
@@ -126,21 +131,21 @@ namespace RespaldosBak.Core
             return r;
         }
 
-        private long ProcesarIndex(ArchivoBak bak, string destinoIndex, HashSet<string> atendidos, Resultado r,
+        private void ProcesarIndex(ArchivoBak bak, string destinoIndex, HashSet<string> atendidos, Resultado r,
                                    long acumulado, Action<string, long> informar, CancellationToken token)
         {
             if (bak.ZipIndex == null)
             {
                 r.IndexNoEncontrados++;
                 Aviso(bak.RutaRelativa, "no tiene .zip en Index\\respaldos");
-                return 0;
+                return;
             }
 
             string nombre = Path.GetFileName(bak.ZipIndex);
             if (!atendidos.Add(bak.ZipIndex))
             {
                 Aviso(bak.RutaRelativa, "nombre duplicado; " + nombre + " ya se atendió con otro .bak");
-                return 0;
+                return;
             }
 
             string relativa = Path.Combine(Rutas.CarpetaIndex, Rutas.CarpetaRespaldos, nombre);
@@ -165,7 +170,6 @@ namespace RespaldosBak.Core
                 r.IndexProcesados++;
                 r.Bytes += bak.TamanoZipIndex;
             }
-            return bak.TamanoZipIndex;
         }
 
         private Estado Transferir(string origen, string relativa, string destino, bool comprimir, Resultado r,

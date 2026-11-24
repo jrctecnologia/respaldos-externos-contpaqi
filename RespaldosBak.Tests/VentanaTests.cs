@@ -124,10 +124,30 @@ namespace RespaldosBak.Tests
             Assert.Single(Directory.GetFiles(_app, "*.log"));
         }
 
+        [Fact]
+        public void Copiar_procesa_y_llena_la_barra()
+        {
+            string[] antes = e.Foto();
+            Con(f =>
+            {
+                Llenar(f);
+                f.Simular.Checked = false;
+                Esperar(f.IniciarAsync());
+                Assert.Equal(f.Barra.Maximum, f.Barra.Value);
+                Assert.Equal("Terminado.", f.Estado.Text);
+                Assert.Contains("COPIADO: ", f.Registro.Text);
+                Assert.False(f.Cancelar.Enabled);
+                Assert.True(f.Origen.Enabled);
+            });
+            Assert.Contains(".bak procesados: 3", Assert.Single(_mensajes));
+            Assert.Equal(antes, e.Foto());
+            Assert.Equal(5, e.ArchivosDestino().Length);
+        }
+
         [Theory]
         [InlineData(DialogResult.No)]
         [InlineData(DialogResult.Yes)]
-        public void Mover_pide_confirmacion_y_en_esta_etapa_no_mueve(DialogResult respuesta)
+        public void Mover_pide_confirmacion(DialogResult respuesta)
         {
             _respuesta = respuesta;
             string[] antes = e.Foto();
@@ -140,9 +160,61 @@ namespace RespaldosBak.Tests
             });
             Assert.StartsWith("Se moverán 3 archivos (", _mensajes[0]);
             Assert.EndsWith("Los originales se borrarán después de verificar la copia. ¿Continuar?", _mensajes[0]);
-            Assert.Equal(respuesta == DialogResult.Yes ? 2 : 1, _mensajes.Count);
-            Assert.Equal(antes, e.Foto());
-            Assert.False(Directory.Exists(e.Destino));
+            if (respuesta == DialogResult.Yes)
+            {
+                Assert.Equal(2, _mensajes.Count);
+                Assert.Equal(5, e.ArchivosDestino().Length);
+                Assert.Equal(antes.Length - 5, e.Foto().Length);
+            }
+            else
+            {
+                Assert.Single(_mensajes);
+                Assert.Equal(antes, e.Foto());
+                Assert.False(Directory.Exists(e.Destino));
+            }
+        }
+
+        [Theory]
+        [InlineData(false)]
+        [InlineData(true)]
+        public void Cancelar_a_la_mitad_bloquea_controles_y_no_deja_tmp(bool cerrandoLaVentana)
+        {
+            // Datos aleatorios y con compresión: tarda lo suficiente para cancelar a la mitad.
+            string grande = e.CrearBak("bbGRANDE/Grande.bak", 2021, 150 * 1024 * 1024);
+            Con(f =>
+            {
+                Llenar(f);
+                f.Mover.Checked = true;
+                f.Comprimir.Checked = true;
+                f.Simular.Checked = false;
+                Task tarea = f.IniciarAsync();
+                DateTime limite = DateTime.Now.AddSeconds(30);
+                while (!f.Estado.Text.Contains("Grande.bak") && DateTime.Now < limite)
+                {
+                    Application.DoEvents();
+                    Thread.Sleep(1);
+                }
+                Assert.False(f.Origen.Enabled);
+                Assert.False(f.Iniciar.Enabled);
+                Assert.True(f.Cancelar.Enabled);
+
+                if (cerrandoLaVentana)
+                {
+                    f.Close();
+                    Assert.False(f.IsDisposed);
+                }
+                else
+                {
+                    f.Cancelar.PerformClick();
+                }
+                Esperar(tarea);
+                Assert.Equal("Cancelado.", f.Estado.Text);
+                Assert.True(f.Iniciar.Enabled);
+            });
+            Assert.Contains("CANCELADO", _mensajes.Last());
+            Assert.Equal(cerrandoLaVentana, _mensajes.Any(m => m.Contains("Hay un proceso en curso")));
+            Assert.Equal(150 * 1024 * 1024, new FileInfo(grande).Length);
+            Assert.DoesNotContain(e.ArchivosDestino(), a => a.EndsWith(".tmp") || a.Contains("Grande"));
         }
 
         [Fact]
