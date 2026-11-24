@@ -9,12 +9,15 @@ using RespaldosBak.Core;
 
 namespace RespaldosBak.Config
 {
-    /// <summary>Últimas rutas y opciones, en RespaldosBak.ini junto al .exe. Nunca lanza errores de archivo.</summary>
+    /// <summary>
+    /// Últimas rutas, año y compresión, en RespaldosBak.ini junto al .exe. Nunca lanza errores de archivo.
+    /// Operación y Simular no se guardan a propósito: siempre se abre en Copiar y Simular.
+    /// </summary>
     public static class Preferencias
     {
         public const string NombreArchivo = "RespaldosBak.ini";
 
-        /// <summary>Lo que falte o no sea válido queda con su valor por defecto (Copiar, Simular).</summary>
+        /// <summary>Lo que falte o no sea válido queda con su valor por defecto.</summary>
         public static Opciones Cargar(string carpeta, int anioPorDefecto)
         {
             var valores = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase);
@@ -37,9 +40,7 @@ namespace RespaldosBak.Config
                 Index = Leer(valores, "Index"),
                 Destino = Leer(valores, "Destino"),
                 Anio = anioValido ? anio : anioPorDefecto,
-                Modo = Es(valores, "Operacion", "Mover") ? ModoOperacion.Mover : ModoOperacion.Copiar,
-                Comprimir = Es(valores, "Comprimir", "Si"),
-                Simular = !Es(valores, "Simular", "No")
+                Comprimir = Es(valores, "Comprimir", "Si")
             };
         }
 
@@ -52,9 +53,7 @@ namespace RespaldosBak.Config
                 "Index=" + o.Index,
                 "Destino=" + o.Destino,
                 "Anio=" + o.Anio.ToString(CultureInfo.InvariantCulture),
-                "Operacion=" + o.Modo,
-                "Comprimir=" + (o.Comprimir ? "Si" : "No"),
-                "Simular=" + (o.Simular ? "Si" : "No")
+                "Comprimir=" + (o.Comprimir ? "Si" : "No")
             };
             try { File.WriteAllLines(Path.Combine(carpeta, NombreArchivo), lineas, new UTF8Encoding(true)); }
             catch (Exception ex) when (EsDeArchivo(ex)) { }
