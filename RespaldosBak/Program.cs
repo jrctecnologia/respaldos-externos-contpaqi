@@ -1,6 +1,5 @@
 using System;
 using System.Windows.Forms;
-using RespaldosBak.Core;
 
 namespace RespaldosBak
 {
@@ -9,10 +8,9 @@ namespace RespaldosBak
         [STAThread]
         private static void Main()
         {
-            // Provisional: la ventana principal llega en la etapa 2.
-            MessageBox.Show(
-                "Respaldos BAK CONTPAQi " + Procesador.VersionApp + "\n\nLa interfaz todavía está en desarrollo.",
-                "Respaldos BAK CONTPAQi", MessageBoxButtons.OK, MessageBoxIcon.Information);
+            Application.EnableVisualStyles();
+            Application.SetCompatibleTextRenderingDefault(false);
+            Application.Run(new MainForm(AppDomain.CurrentDomain.BaseDirectory));
         }
     }
 }

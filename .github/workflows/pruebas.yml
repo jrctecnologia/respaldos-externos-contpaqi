@@ -1,8 +1,9 @@
 name: Pruebas
 on:
   push:
-    branches: [main]
+    branches: ["**"]
   pull_request:
+  workflow_dispatch:
 permissions:
   contents: read
 jobs:
@@ -19,8 +20,15 @@ jobs:
         run: dotnet test RespaldosBak.Tests
         env:
           RESPALDOS_PRUEBA_4GB: "1"
+          RESPALDOS_CAPTURA: ${{ github.workspace }}\ventana.png
       - uses: actions/upload-artifact@v4
         with:
           name: RespaldosBak
           path: RespaldosBak/bin/Release/net48/RespaldosBak.exe
           if-no-files-found: error
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: Ventana
+          path: ventana.png
+          if-no-files-found: warn
