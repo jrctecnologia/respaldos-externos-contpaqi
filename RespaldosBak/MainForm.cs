@@ -41,7 +41,7 @@ namespace RespaldosBak
         private readonly string _carpetaApp;
         private readonly TableLayoutPanel _entradas = Tabla(3);
         private string _rutaLog;
-        private string _ultimoOrigen;
+        private string _ultimoOrigen = "";
         private bool _ocupado;
 
         /// <summary>Reemplazable en las pruebas para no abrir ventanas.</summary>
@@ -101,7 +101,6 @@ namespace RespaldosBak
                 return;
             }
 
-            Preferencias.Guardar(_carpetaApp, opciones);
             Registro.Clear();
             Ocupar(true);
             try
@@ -179,19 +178,13 @@ namespace RespaldosBak
         {
             Anio.Items.AddRange(Anios.Disponibles.Cast<object>().ToArray());
             int actual = DateTime.Now.Year;
-            Opciones o = Preferencias.Cargar(_carpetaApp, Anios.Disponibles.Contains(actual) ? actual : Anios.Disponibles.Last());
+            Anio.SelectedItem = Anios.Disponibles.Contains(actual) ? actual : Anios.Disponibles.Last();
 
-            Origen.Text = o.Origen;
-            Index.Text = o.Index;
-            Destino.Text = o.Destino;
-            Anio.SelectedItem = o.Anio;
-            Mover.Checked = o.Modo == ModoOperacion.Mover;
-            Copiar.Checked = !Mover.Checked;
-            Comprimir.Checked = o.Comprimir;
-            Simular.Checked = o.Simular;
+            // No se recuerda nada entre ejecuciones: siempre abre con lo más seguro.
+            Copiar.Checked = true;
+            Simular.Checked = true;
 
-            _ultimoOrigen = o.Origen;
-            if (o.Origen.Length == 0 && Directory.Exists(OrigenHabitual))
+            if (Directory.Exists(OrigenHabitual))
             {
                 Origen.Text = OrigenHabitual;
                 OrigenElegido();
@@ -230,7 +223,6 @@ namespace RespaldosBak
         private void AlCerrar(object sender, FormClosingEventArgs e)
         {
             if (_ocupado) e.Cancel = true;
-            else Preferencias.Guardar(_carpetaApp, LeerOpciones());
         }
 
         private void Abrir(string ruta)

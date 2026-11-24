@@ -75,21 +75,21 @@ namespace RespaldosBak.Tests
         }
 
         [Fact]
-        public void Recuerda_lo_ultimo_al_cerrar()
+        public void No_recuerda_nada_al_cerrar()
         {
             Con(f =>
             {
-                f.Origen.Text = e.Origen;
-                f.Destino.Text = e.Destino;
-                f.Anio.SelectedItem = 2021;
-                f.Comprimir.Checked = true;
+                Llenar(f);
+                f.Mover.Checked = true;
+                f.Simular.Checked = false;
                 f.Close();
             });
             Con(f =>
             {
-                Assert.Equal((e.Origen, e.Destino, 2021, true),
-                    (f.Origen.Text, f.Destino.Text, (int)f.Anio.SelectedItem, f.Comprimir.Checked));
+                Assert.Equal("", f.Destino.Text);
+                Assert.True(f.Copiar.Checked && f.Simular.Checked);
             });
+            Assert.Empty(Directory.GetFiles(_app));
         }
 
         [Fact]

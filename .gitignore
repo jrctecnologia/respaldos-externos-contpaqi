@@ -8,6 +8,5 @@ TestResults/
 .DS_Store
 # Archivos que genera la herramienta
 *.log
-RespaldosBak.ini
 # Especificación interna: no se publica
 Plan_*.md
