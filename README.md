@@ -10,6 +10,17 @@ Descárgala en [Releases](https://github.com/jrctecnologia/respaldos-externos-co
 - Nunca sobrescribe: lo que ya existe en el destino se omite.
 - Compresión ZIP opcional por archivo y modo de simulación.
 
+## Antes de usarla: deslinde de responsabilidad
+
+Esta herramienta copia, mueve y borra archivos de respaldo. Se ofrece "tal cual", sin garantía de ningún tipo, y **quien la usa lo hace bajo su propia responsabilidad**. JRC Tecnología y los autores no se hacen responsables por pérdida de información, daños o interrupciones derivados de su uso. Consulta también la [licencia MIT](LICENSE).
+
+Se recomienda:
+
+1. Usar primero **Simular** y revisar con cuidado el resultado y el log, incluidos los avisos y los archivos omitidos.
+2. Después usar **Copiar** y comprobar que los archivos del destino se abren bien.
+3. Usar **Mover** solo al final y hacia una carpeta nueva, porque los originales se borran después de verificar el tamaño de la copia.
+4. Conservar siempre otro respaldo de la información importante.
+
 Esta herramienta no está afiliada a CONTPAQi.
 
 ## Desarrollo
