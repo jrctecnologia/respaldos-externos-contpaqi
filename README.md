@@ -1,29 +1,82 @@
 # Respaldos BAK CONTPAQi
 
-Herramienta portable para Windows que copia o mueve los respaldos `.bak` de un año, junto con sus `.zip` de `Index\respaldos`, a otra carpeta o unidad externa, conservando la estructura de carpetas.
+Herramienta portable para Windows que copia o mueve los respaldos `.bak` de un año, junto con sus `.zip` de `Index\respaldos`, a otra carpeta o a una unidad externa, conservando la estructura de carpetas.
 
-Descárgala en [Releases](https://github.com/jrctecnologia/respaldos-externos-contpaqi/releases). Antes de copiar o mover, usa *Simular* y revisa el resultado.
+**[Descargar la última versión](https://github.com/jrctecnologia/respaldos-externos-contpaqi/releases/latest)**: es un solo archivo, `RespaldosBak.exe`, y no se instala.
 
-- Un solo `RespaldosBak.exe`, sin instalación (requiere .NET Framework 4.8, incluido en Windows 10 1903+, Windows 11 y Server 2022+).
-- Solo toma archivos de las subcarpetas de `Empresas`; nunca toca los de la raíz.
-- Al mover, borra el original únicamente después de verificar la copia.
-- Nunca sobrescribe: lo que ya existe en el destino se omite.
-- Compresión ZIP opcional por archivo y modo de simulación.
+## Deslinde de responsabilidad
 
-## Antes de usarla: deslinde de responsabilidad
+Esta herramienta copia, mueve y borra archivos. **Úsala bajo tu propia responsabilidad.**
 
-Esta herramienta copia, mueve y borra archivos de respaldo. Se ofrece "tal cual", sin garantía de ningún tipo, y **quien la usa lo hace bajo su propia responsabilidad**. JRC Tecnología y los autores no se hacen responsables por pérdida de información, daños o interrupciones derivados de su uso. Consulta también la [licencia MIT](LICENSE).
+Se ofrece "tal cual", sin garantía de ningún tipo. JRC Tecnología y los autores no se hacen responsables por pérdida de información ni por otros daños derivados de su uso. Consulta también la [licencia MIT](LICENSE).
 
-Se recomienda:
+Antes de mover tus respaldos:
 
-1. Usar primero **Simular** y revisar con cuidado el resultado y el log, incluidos los avisos y los archivos omitidos.
-2. Elegir después **una** de las dos operaciones, según lo que se necesite:
-   - **Copiar**: deja los originales en su lugar.
-   - **Mover**: solo si se quieren quitar los originales. Se borran después de verificar el tamaño de la copia.
-3. No usar **Mover** hacia un destino donde ya se hizo **Copiar**: lo que ya existe se omite, así que esos originales no se borran, y un `.zip` de Index puede quedarse en el origen sin su `.bak`. Para mover, usar una carpeta nueva.
-4. Conservar siempre otro respaldo de la información importante.
+- **Simula y revisa el resultado con cuidado.** Simular no copia, mueve ni borra nada.
+- **Ten otro respaldo** de la información importante.
 
 Esta herramienta no está afiliada a CONTPAQi.
+
+## Requisitos
+
+- Windows con .NET Framework 4.8. Ya viene en Windows 10 (1903 o posterior), Windows 11 y Server 2022. En Server 2016 y 2019 hay que instalarlo si no está.
+- Permiso para leer la carpeta `Empresas` y para escribir en el destino. Para mover, también permiso para borrar en el origen.
+
+## Cómo se usa
+
+1. Copia `RespaldosBak.exe` a una carpeta o a una USB y ábrelo. Como no está firmado, Windows puede mostrar una advertencia.
+2. Llena los datos:
+
+   | Campo | Qué poner |
+   |---|---|
+   | **Origen (Empresas)** | La carpeta `Empresas` de CONTPAQi. Si existe `C:\Compac\Empresas`, aparece sola. |
+   | **Carpeta Index** | Se llena sola al elegir el origen. Si no existe, solo se procesan los `.bak`. |
+   | **Destino** | Dónde quedarán los respaldos. No puede estar dentro de Origen ni de Index. |
+   | **Año** | Año de la fecha de modificación de los `.bak`. |
+   | **Operación** | **Copiar** o **Mover** (ver abajo). |
+   | **Comprimir .bak a ZIP** | Opcional. Crea un `.bak.zip` por cada `.bak`. |
+
+3. Deja marcado **Simular** y presiona **Iniciar**. Revisa la lista, los avisos y el resumen.
+4. Si el resultado es correcto, desmarca **Simular** y presiona **Iniciar** otra vez. **Mover** pide confirmación.
+5. Al terminar, revisa el resumen. **Abrir log** muestra el detalle y **Abrir destino** abre la carpeta.
+
+**Cancelar** detiene el proceso, incluso a la mitad de un archivo. Lo que ya se terminó de copiar o mover se queda así.
+
+### ¿Copiar o Mover?
+
+Elige una, según lo que necesites. No son pasos seguidos.
+
+- **Copiar** deja los originales en su lugar.
+- **Mover** quita los originales. Cada uno se borra después de verificar el tamaño de su copia.
+
+> **Si vas a mover, usa un destino donde no hayas copiado antes los mismos archivos.** Lo que ya existe en el destino se omite y su original no se borra. Además, un `.zip` de Index puede quedarse en el origen sin su `.bak`, y la herramienta ya no lo tomará.
+
+### Qué archivos toma
+
+- Los `.bak` que están en las subcarpetas de `Empresas`. Los de la raíz nunca se tocan.
+- El `.zip` de `Index\respaldos` que se llama igual que cada `.bak`. Los `.zip` no se vuelven a comprimir.
+
+Nunca sobrescribe: lo que ya existe en el destino se omite. El destino queda así:
+
+```
+Destino\
+├── Empresas\
+│   └── adEMPRESA\Respaldo.bak      (o Respaldo.bak.zip)
+└── Index\
+    └── respaldos\Respaldo.zip
+```
+
+### Qué significa cada línea del log
+
+El log se guarda junto al `.exe`, o en la carpeta temporal de Windows (`%TEMP%`) si ahí no se puede escribir.
+
+| Tipo | Significado |
+|---|---|
+| `COPIADO`, `MOVIDO`, `COMPRIMIDO` | Se procesó bien. `COMPRIMIDO` es una copia comprimida. |
+| `COPIARÍA`, `MOVERÍA` | Simulación: es lo que haría. |
+| `OMITIDO` | Ya existía en el destino. |
+| `AVISO` | Algo por revisar, por ejemplo un `.bak` sin `.zip` en Index. |
+| `ERROR` | No se pudo procesar, o se copió pero no se pudo borrar el original. Si dice que el acceso fue denegado, prueba abrir el `.exe` como administrador. |
 
 ## Desarrollo
 
