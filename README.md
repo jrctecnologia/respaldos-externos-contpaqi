@@ -4,6 +4,8 @@ Herramienta portable para Windows que copia o mueve los respaldos `.bak` de un a
 
 **[Descargar la última versión](https://github.com/jrctecnologia/respaldos-externos-contpaqi/releases/latest)**: es un solo archivo, `RespaldosBak.exe`, y no se instala.
 
+![Ventana de Respaldos BAK CONTPAQi simulando una copia, con datos de ejemplo](docs/ventana.png)
+
 ## Deslinde de responsabilidad
 
 Esta herramienta copia, mueve y borra archivos. **Úsala bajo tu propia responsabilidad.**
