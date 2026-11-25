@@ -125,6 +125,25 @@ namespace RespaldosBak.Tests
         }
 
         [Fact]
+        public void Al_simular_las_lineas_aparecen_a_la_par_de_la_barra()
+        {
+            string alEmpezarElSegundo = null, alResumen = null;
+            Con(f =>
+            {
+                Llenar(f);
+                f.Estado.TextChanged += (s, ev) =>
+                {
+                    if (alEmpezarElSegundo == null && f.Estado.Text.StartsWith("2 de 3")) alEmpezarElSegundo = f.Registro.Text;
+                };
+                f.Mensaje = (texto, botones, icono) => { alResumen = f.Registro.Text; return DialogResult.OK; };
+                Esperar(f.IniciarAsync());
+            });
+            Assert.Contains("COPIARÍA: adEMP1", alEmpezarElSegundo);
+            Assert.DoesNotContain("COPIARÍA: ctEMP3", alEmpezarElSegundo);
+            Assert.Contains("INFO: Tamaño:", alResumen);
+        }
+
+        [Fact]
         public void Copiar_procesa_y_llena_la_barra()
         {
             string[] antes = e.Foto();
