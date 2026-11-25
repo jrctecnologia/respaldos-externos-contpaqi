@@ -17,6 +17,10 @@ Antes de mover tus respaldos:
 
 Esta herramienta no está afiliada a CONTPAQi.
 
+## Hecha por JRC Tecnología
+
+Desarrollada por **[JRC Tecnología](https://jrctecnologia.mx)**. Conócenos en **[jrctecnologia.mx](https://jrctecnologia.mx)**.
+
 ## Requisitos
 
 - Windows con .NET Framework 4.8. Ya viene en Windows 10 (1903 o posterior), Windows 11 y Server 2022. En Server 2016 y 2019 hay que instalarlo si no está.

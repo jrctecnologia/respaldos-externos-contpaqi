@@ -287,10 +287,24 @@ namespace RespaldosBak.Tests
         }
 
         /// <summary>Imagen de la ventana para revisarla a ojo en los artefactos de GitHub Actions.</summary>
-        private static void Capturar(Form f)
+        private void Capturar(MainForm f)
         {
             string ruta = Environment.GetEnvironmentVariable("RESPALDOS_CAPTURA");
             if (string.IsNullOrEmpty(ruta)) return;
+
+            // Rutas de ejemplo en vez de la carpeta temporal de la prueba; sirve para el README.
+            string registro = string.Join(Environment.NewLine, f.Registro.Lines.Where(l => !l.Contains("Usuario:")))
+                .Replace(e.Origen, @"C:\Compac\Empresas").Replace(e.Index, @"C:\Compac\Index").Replace(e.Destino, @"E:\Respaldos");
+            f.Origen.Text = @"C:\Compac\Empresas";
+            f.Index.Text = @"C:\Compac\Index";
+            f.Destino.Text = @"E:\Respaldos";
+            f.AvisoIndex.Text = "";
+            f.Icon = new Icon(Path.Combine(Path.GetDirectoryName(ruta), "RespaldosBak", "icono.ico"));
+            f.Registro.Text = registro;
+            f.Registro.Select(registro.Length, 0);
+            f.Registro.ScrollToCaret();
+            Application.DoEvents();
+
             using (var imagen = new Bitmap(f.Width, f.Height))
             {
                 f.DrawToBitmap(imagen, new Rectangle(Point.Empty, f.Size));
