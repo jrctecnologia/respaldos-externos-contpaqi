@@ -17,10 +17,6 @@ Antes de mover tus respaldos:
 
 Esta herramienta no está afiliada a CONTPAQi.
 
-## Hecha por JRC Tecnología
-
-Desarrollada por **[JRC Tecnología](https://jrctecnologia.mx)**. Conócenos en **[jrctecnologia.mx](https://jrctecnologia.mx)**.
-
 ## Requisitos
 
 - Windows con .NET Framework 4.8. Ya viene en Windows 10 (1903 o posterior), Windows 11 y Server 2022. En Server 2016 y 2019 hay que instalarlo si no está.
@@ -82,23 +78,10 @@ El log se guarda junto al `.exe`, o en la carpeta temporal de Windows (`%TEMP%`)
 | `AVISO` | Algo por revisar, por ejemplo un `.bak` sin `.zip` en Index. |
 | `ERROR` | No se pudo procesar, o se copió pero no se pudo borrar el original. Si dice que el acceso fue denegado, prueba abrir el `.exe` como administrador. |
 
-## Desarrollo
+## Para desarrolladores
 
-Se necesita el SDK de .NET 10. Compila también en macOS y Linux.
+Cómo compilar, probar y publicar versiones: [DESARROLLO.md](DESARROLLO.md).
 
-```
-dotnet build RespaldosBak -c Release
-dotnet test RespaldosBak.Tests
-```
+## Hecha por JRC Tecnología
 
-La prueba de archivos de más de 4 GB solo corre con la variable de entorno `RESPALDOS_PRUEBA_4GB=1`.
-En Windows las pruebas corren en net48 (el entorno real) y en net10.0; en otros sistemas, solo en net10.0.
-
-## Publicar una versión
-
-```
-git tag v1.0.0
-git push origin v1.0.0
-```
-
-GitHub Actions ejecuta las pruebas, compila el `.exe` con ese número de versión y lo publica en *Releases* con su SHA-256.
+Desarrollada por **[JRC Tecnología](https://jrctecnologia.mx)**. Conócenos en **[jrctecnologia.mx](https://jrctecnologia.mx)**.
