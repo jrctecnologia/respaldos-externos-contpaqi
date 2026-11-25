@@ -2,7 +2,7 @@
 
 Herramienta portable para Windows que copia o mueve los respaldos `.bak` de un año, junto con sus `.zip` de `Index\respaldos`, a otra carpeta o unidad externa, conservando la estructura de carpetas.
 
-Descárgala en [Releases](https://github.com/jrctecnologia/respaldos-externos-contpaqi/releases). La primera vez, empieza con *Simular* y después con *Copiar*.
+Descárgala en [Releases](https://github.com/jrctecnologia/respaldos-externos-contpaqi/releases). Antes de copiar o mover, usa *Simular* y revisa el resultado.
 
 - Un solo `RespaldosBak.exe`, sin instalación (requiere .NET Framework 4.8, incluido en Windows 10 1903+, Windows 11 y Server 2022+).
 - Solo toma archivos de las subcarpetas de `Empresas`; nunca toca los de la raíz.
@@ -17,8 +17,10 @@ Esta herramienta copia, mueve y borra archivos de respaldo. Se ofrece "tal cual"
 Se recomienda:
 
 1. Usar primero **Simular** y revisar con cuidado el resultado y el log, incluidos los avisos y los archivos omitidos.
-2. Después usar **Copiar** y comprobar que los archivos del destino se abren bien.
-3. Usar **Mover** solo al final y hacia una carpeta nueva, porque los originales se borran después de verificar el tamaño de la copia.
+2. Elegir después **una** de las dos operaciones, según lo que se necesite:
+   - **Copiar**: deja los originales en su lugar.
+   - **Mover**: solo si se quieren quitar los originales. Se borran después de verificar el tamaño de la copia.
+3. No usar **Mover** hacia un destino donde ya se hizo **Copiar**: lo que ya existe se omite, así que esos originales no se borran, y un `.zip` de Index puede quedarse en el origen sin su `.bak`. Para mover, usar una carpeta nueva.
 4. Conservar siempre otro respaldo de la información importante.
 
 Esta herramienta no está afiliada a CONTPAQi.
