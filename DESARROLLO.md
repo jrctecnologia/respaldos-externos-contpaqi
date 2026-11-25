@@ -13,10 +13,10 @@ En Windows las pruebas corren en net48 (el entorno real) y en net10.0; en otros 
 ## Publicar una versión
 
 ```
-git tag v1.0.0
-git push origin v1.0.0
+git tag vX.Y.Z
+git push origin vX.Y.Z
 ```
 
-GitHub Actions ejecuta las pruebas, compila el `.exe` con ese número de versión y lo publica en *Releases* con su SHA-256.
+GitHub Actions ejecuta las pruebas, compila el `.exe` con ese número de versión y lo publica en *Releases* con su SHA-256. Los tags con guion (por ejemplo `v1.1.0-beta.1`) salen como versión preliminar.
 
 [Volver al README](README.md)
