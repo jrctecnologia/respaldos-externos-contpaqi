@@ -336,6 +336,7 @@ namespace RespaldosBak.Tests
                     WindowsFormsSynchronizationContext.AutoInstall = false;
                     SynchronizationContext.SetSynchronizationContext(new WindowsFormsSynchronizationContext());
                     Control.CheckForIllegalCrossThreadCalls = true;
+                    Application.EnableVisualStyles(); // Igual que Program.cs.
                     using (var f = new MainForm(_app))
                     {
                         f.Mensaje = (texto, botones, icono) =>

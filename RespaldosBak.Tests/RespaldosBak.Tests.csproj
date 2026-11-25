@@ -6,6 +6,9 @@
     <LangVersion>latest</LangVersion>
     <!-- Las llamadas solo de Unix ya se protegen con EsWindows. -->
     <NoWarn>$(NoWarn);CA1416</NoWarn>
+    <!-- Para que la captura muestre la versión sin el hash del commit. -->
+    <Version>1.0.0</Version>
+    <IncludeSourceRevisionInInformationalVersion>false</IncludeSourceRevisionInInformationalVersion>
     <IsPackable>false</IsPackable>
     <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
   </PropertyGroup>
