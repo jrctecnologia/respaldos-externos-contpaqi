@@ -301,7 +301,7 @@ namespace RespaldosBak
             Font = new Font("Segoe UI", 9f);
             AutoScaleDimensions = new SizeF(96f, 96f);
             AutoScaleMode = AutoScaleMode.Dpi;
-            Text = Titulo + " " + Procesador.VersionApp;
+            Text = Titulo + " " + Procesador.VersionApp + " - JRC Tecnología";
             try { Icon = Icon.ExtractAssociatedIcon(Application.ExecutablePath); } // El mismo del .exe, sin duplicarlo.
             catch (ArgumentException) { } // No admite rutas de red (\\servidor\...): se queda el icono genérico.
             StartPosition = FormStartPosition.CenterScreen;

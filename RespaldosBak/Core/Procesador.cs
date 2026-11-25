@@ -254,7 +254,7 @@ namespace RespaldosBak.Core
 
         private void EscribirEncabezado()
         {
-            _log.Escribir(Tipo.Info, "Respaldos BAK CONTPAQi " + VersionApp);
+            _log.Escribir(Tipo.Info, "Respaldos BAK CONTPAQi " + VersionApp + " - JRC Tecnología");
             _log.Escribir(Tipo.Info, "Usuario: " + Environment.UserName + "  Equipo: " + Environment.MachineName);
             _log.Escribir(Tipo.Info, "Origen: " + _op.Origen);
             _log.Escribir(Tipo.Info, "Index: " + _op.Index);
