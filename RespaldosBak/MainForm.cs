@@ -116,7 +116,10 @@ namespace RespaldosBak
                 using (var bitacora = new Bitacora(_carpetaApp, opciones.Anio))
                 {
                     _rutaLog = bitacora.RutaArchivo;
-                    bitacora.Linea += AgregarLinea;
+                    // El mismo canal que usa Progress<T>. BeginInvoke sobre el formulario es otra cola, que se vacía por
+                    // separado: al simular, la barra llegaba al final antes de que apareciera la primera línea.
+                    SynchronizationContext contexto = SynchronizationContext.Current;
+                    bitacora.Linea += linea => contexto.Post(_ => AgregarLinea(linea), null);
                     try
                     {
                         await ProcesarAsync(opciones, bitacora, _cancelacion.Token);
@@ -181,6 +184,10 @@ namespace RespaldosBak
             if (_cancelacion == null || _cancelacion.IsCancellationRequested) return; // Se queda en "Cancelando…".
             Estado.Text = p.Numero + " de " + p.Total + "   " + Resultado.FormatoTamano(p.BytesProcesados) + " de "
                           + Resultado.FormatoTamano(p.BytesTotales) + "   " + p.Archivo;
+            // Al simular llegan cientos de avances seguidos y Windows no repinta hasta terminar.
+            Barra.Update();
+            Estado.Update();
+            Registro.Update();
         }
 
         private void PedirCancelacion()
@@ -250,8 +257,7 @@ namespace RespaldosBak
 
         private void AgregarLinea(string linea)
         {
-            if (IsDisposed || !IsHandleCreated) return;
-            BeginInvoke(new Action(() => Registro.AppendText(linea + Environment.NewLine)));
+            if (!IsDisposed) Registro.AppendText(linea + Environment.NewLine);
         }
 
         private void AlCerrar(object sender, FormClosingEventArgs e)
