@@ -5,7 +5,7 @@
     <LangVersion>latest</LangVersion>
     <AssemblyName>RespaldosBak</AssemblyName>
     <RootNamespace>RespaldosBak</RootNamespace>
-    <Version>0.4.0-dev</Version>
+    <Version>1.0.0</Version>
     <IncludeSourceRevisionInInformationalVersion>false</IncludeSourceRevisionInInformationalVersion>
     <Company>JRC Tecnología</Company>
     <Product>Respaldos BAK CONTPAQi</Product>

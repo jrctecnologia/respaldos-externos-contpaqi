@@ -2,7 +2,7 @@
 
 Herramienta portable para Windows que copia o mueve los respaldos `.bak` de un año, junto con sus `.zip` de `Index\respaldos`, a otra carpeta o unidad externa, conservando la estructura de carpetas.
 
-> **En desarrollo.** Falta la prueba en campo: empieza siempre con *Simular* y después con *Copiar*.
+Descárgala en [Releases](https://github.com/jrctecnologia/respaldos-externos-contpaqi/releases). La primera vez, empieza con *Simular* y después con *Copiar*.
 
 - Un solo `RespaldosBak.exe`, sin instalación (requiere .NET Framework 4.8, incluido en Windows 10 1903+, Windows 11 y Server 2022+).
 - Solo toma archivos de las subcarpetas de `Empresas`; nunca toca los de la raíz.
